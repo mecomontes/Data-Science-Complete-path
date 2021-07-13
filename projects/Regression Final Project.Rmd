@@ -1,0 +1,52 @@
+---
+title: "Regressions Models Practice"
+author: "Robinson Andres Montes Gómez"
+date: "11/16/2020"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Is an automatic or manual transmission better for MPG?
+
+The first step is to do summary of the variables
+
+```{r cars}
+summary(mtcars)
+```
+
+## Regression
+
+Now let's start the regression analysis, with mpg as dependent variable and transmission (am) as independent variable. Beginning with the scatter plot and then with the regression analysis.
+
+```{r}
+scatter.smooth(x = mtcars$am, y = mtcars$mpg, main = 'Scatter Plot')
+```
+
+```{r}
+fit <- lm(mpg ~ factor(am), mtcars)
+summary(fit)
+```
+The 33.85% of the mpg is explained by the transmission, the other 66.15% depends of other variables. The model is statistical significant with a confidence level of 95% (p-value = 0.000285). According to the regression, a car with a manual transmission is more efficient than an automatic car, increasing the mpg in 7.245 miles/gallon.
+
+## RESIDUAL DIAGNOSTIC
+
+Plot of Residuals
+
+```{r}
+hist(fit$residuals,freq = FALSE,main = "Distribution Residuals")
+```
+
+QQ-Plot
+
+```{r}
+library(car)
+qqPlot(fit$residuals)
+```
+
+There is statistical evidence that the residuals have a normal distribution.

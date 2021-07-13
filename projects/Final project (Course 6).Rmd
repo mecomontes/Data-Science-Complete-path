@@ -1,0 +1,52 @@
+---
+title: "Final project (Statistical Inference)"
+author: "Robinson Montes Gómez"
+date: "11/15/2020"
+output:
+  pdf_document: default
+  word_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## PART 1: SIMULATION EXCERCISE
+
+Let's investigate the exponential distribution and compare it with the Central Limit Theorem. The first step is to create a random data with the rexp function with lambda 0.2
+
+```{r}
+exp_data <- as.data.frame(replicate(40, mean(rexp(1000, 0.2))))
+head(1/exp_data, 10)
+```
+Calculating the means of the 40 simulation of size 1000, we can see that all means are approximately 0.2. Let's compute the average of the 40 means
+
+```{r}
+mean_sample <- 1/mean(exp_data$`replicate(40, mean(rexp(1000, 0.2)))`)
+round(mean_sample, 2)
+```
+The value 0.2 is the average of the 40 means calculated in the simulations rounding to 2 decimals, it is the expected value of theoretical mean.
+
+Now we are going to check the standard desviation of the simulations
+
+```{r}
+exp_data_sd <- as.data.frame(replicate(40, sd(rexp(1000, 0.2))))
+head(1/exp_data, 10)
+```
+
+```{r}
+sd_sample <- 1/mean(exp_data_sd$`replicate(40, sd(rexp(1000, 0.2)))`)
+round(mean_sample, 2)
+```
+As we see, the value of the standard deviations are approximately 0.2
+
+Finally plot the histogram of a large simulations to show that it is close to a normal distribution
+
+```{r}
+mns = NULL
+for (i in 1 : 1000) mns = c(mns, mean(rexp(40)))
+hist(mns, main = 'Histogram for 40 simulations')
+```
+

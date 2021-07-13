@@ -1,0 +1,107 @@
+---
+title: "FINAL PROJECT: MACHINE LEARNING"
+author: "Faiber Andres Montes Gómez"
+date: "12/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## LOADING LIBRARIES AND DATA
+
+The necesary libraries are the next
+
+```{r}
+library(lattice)
+library(ggplot2)
+library(caret)
+library(gbm)
+library(survival)
+library(splines)
+```
+
+1) Download and read raw data
+
+```{r}
+setwd("/home/andres/Desktop/CURSO DATA SCIENCE/MACHINE LEARNING")
+url1 <- "http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+download.file(url1, destfile="pml-training.csv")
+url2 <- "http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+download.file(url2, destfile="pml-testing.csv")
+Train <- read.csv("pml-training.csv", header=TRUE)
+Test <- read.csv("pml-testing.csv", header=TRUE)
+```
+
+## DATA SUMMARY
+
+2) Summary the dataset looking the possible distribution and more information about data
+
+```{r}
+summary(Train$var_total_accel_belt)
+```
+
+We have a lot of NA's values and empty cells, let's fix it
+
+```{r}
+Tidy <- Train[,-c(grep("^amplitude|^kurtosis|^skewness|^avg|^cvtd_timestamp|^max|^min|^new_window|^raw_timestamp|^stddev|^var|^user_name|X",names(Train)))]
+```
+
+Most of the variables are deleted
+
+## DATA SPLITING
+
+3) We are going to into 60% for training and the other 40% for testing the model
+
+```{r}
+set.seed(39)
+inTrain <- createDataPartition(y=Tidy$classe, p=0.6,list=FALSE)
+TidyTrain <- Tidy[inTrain,]
+TidyTest <- Tidy[-inTrain,]
+```
+
+## MODEL SELECTION
+
+What is the better model for the prediction, let's see
+
+```{r}
+set.seed(39)
+fitControl <- trainControl(method = "cv", number = 10)
+gbmFit <- train(classe~., data=TidyTrain, method="gbm", metric="Kappa", trControl=fitControl,verbose=FALSE)
+```
+
+```{r}
+rfFit <- train(classe~.,data=TidyTrain,method="rf", metric="Kappa", trControl=fitControl)
+```
+
+## MODEL SELECTION
+
+Models are compared using resamples function from caret package. 
+
+```{r}
+rValues <- resamples(list(rf=rfFit,gbm=gbmFit))
+summary(rValues)
+```
+
+
+```{r}
+bwplot(rValues,metric="Kappa",main="RandomForest (rf) vs Gradient Boosting (gbm)")
+```
+
+As we see the random forest is the best model
+
+## MODEL VALIDATION
+
+```{r}
+rfFit
+```
+
+## MODEL TESTING
+
+The predictions for the model are
+
+```{r}
+predict(rfFit,newdata=Test)
+```
+
